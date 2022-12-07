@@ -1,8 +1,7 @@
 # BSc_project_fMRI
 The current directory contains code and scripts created by Sirid Wihlborg & Emma Olsen as a part of our bachelor thesis at Cognitive Science, Aarhus University.
 
-In this repository, you will find:
-
+**In this repository, you will find:**
 1. All of the code and scripts used to analyse the fMRI data. 
 2. A detailed description of the methods used to analyse the data. 
 3. Instructions on how to run the scripts. 
