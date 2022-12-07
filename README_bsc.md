@@ -24,31 +24,30 @@ The project is organised as follows:
 ```
 ├── README.md                  <- The top-level README for this project.
 ├── fig                        
-├── idmdl                      <- csv-files with novelty/transience/resonance
-│   └── smoothed               <- csv-files with smoothed signal
-├── logs                       
-├── newsFluxus                 <- the repo newsFluxus from CHCAA github
-├── notebooks                  <- notebooks for plotting      
-│   ├── linear_models.ipynb
-│   ├── vis_emotionFluxus.ipynb
+├── folder                     <- Some comment
+│   └── file                   <- Some comment
+├── folder                       
+├── folder                     <- Some folder
+├── notebooks                  <- Notebooks for XXX     
+│   ├── something.ipynb
+│   ├── something.ipynb
 │   └── ...
-├── src                        <- main scripts
-│   ├── tweets_bert.py
-│   ├── tweets_topic.py
-│   ├── summarize_models.py
-│   ├── emotionFluxus.py
-│   ├── smoothing.py
+├── src                        <- Main scripts
+│   ├── something.py
+│   ├── something.py
+│   ├── something.py
+│   ├── something.py
+│   ├── something.py
 │   └── ...
-├──  summarized_emo            <- ndjson-files with summarized scores of emotion distributions
+├──  name                      <- Some files containing smth
 ├──  requirement.txt           <- A requirements file of the required packages.
-└──  run.sh                    <- bash script for reproducing results
+└──  file                      <- Something
 ```
 
 Before running the code you must run the following to install requirements:
 ```
 pip install -r requirements.txt
-git clone https://github.com/centre-for-humanities-computing/newsFluxus.git
-pip install -r newsFluxus/requirements.txt
+git clone https://github.com/something.git
 ```
 
 ## 2. Pipelines
