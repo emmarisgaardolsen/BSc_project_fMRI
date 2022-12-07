@@ -1,6 +1,6 @@
 # BSc_project_fMRI - Neuronal Basis of Reading Emotional Words 
 
-![Resonance](fig/file.png)
+![Resonance](fig/header.png)
 The current directory contains code and scripts created by Sirid Wihlborg & Emma Olsen as a part of our bachelor thesis at Cognitive Science, Aarhus University.
 
 **In this repository, you will find:**
