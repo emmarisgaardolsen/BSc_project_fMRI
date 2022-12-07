@@ -66,11 +66,11 @@ The following pipeline assumes that your eventfiles/logfiles are BIDS compatible
 
 | Step | Do                                                                                                                | File                                                    | Output placement |
 | ---- | ----------------------------------------------------------------------------------------------------------------- |:------------------------------------------------------- |:---------------- |
-| 0    | Copy and move logfiles (for the subjects to be analysed only) from `aux` drive to `scratch`                       |                                                         |                  |
+| 0    | Copy and move logfiles (for the subjects to be analysed only) from `aux` drive to `scratch`                       |   `raw_to_scratch`                                                      |                  |
 | 1    | Convert logfiles to BIDS compatible format                                                                        | `convert_logfiles_to_BIDS.py`                           |                  |
-| 2    | Delete partphase folders                                                                                          |                                                         |                  |
-| 3    | Dele sbref files                                                                                                  |                                                         |                  |
-| 4    | Delete sbref lines in scantsv file                                                                                |                                                         |                  |
+| 2    | Delete partphase folders                                                                                          | `delete_partphase_folders.py`                                                        |                  |
+| 3    | Dele sbref files                                                                                                  | `script_delete_ref_files.py`                                                        |                  |
+| 4    | Delete sbref lines in scantsv file                                                                                | `script_delete_sbref_lines_in_scantsv.py`                                                        |                  |
 | 5    | Run the bidsmapper and bidscoiner to make bidscoin conversion                                                     | `bidscoiner_emma.py` | `…/data/`                            |                  |
 | 7    | Validate your BIDScoin dataset using the online [BIDS Validator](https://bids-standard.github.io/bids-validator/) | [Link](https://bids-standard.github.io/bids-validator/) |                  |
 
