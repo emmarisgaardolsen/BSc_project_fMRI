@@ -13,7 +13,6 @@ The current directory contains all of the code and scripts created and used by [
 5. References to any relevant literature consulted during the analysis
 6. Acknowledgments
 
-
 ## 0. Project description
 The present fMRI study intends to explore and investigate how affective content in the form of visually presented emotional words might be processed differently than neutral words and potentially lead to altered behaviour and enhanced activation in exstrastriate cortex. 
 
@@ -52,13 +51,58 @@ git clone https://github.com/centre-for-humanities-computing/newsFluxus.git
 pip install -r newsFluxus/requirements.txt
 ```
 
-## 2. Pipeline
+## 2. Pipelines
 
-### 2.1 Convert your source data to the brain imaging data structure (BIDS) standard
-| Do  | File | Output placement |
-| --- |:---- |:---------------- |
-| Run xxx    |  `src/.../..py    | `…/data/`                 |
+### 2.0 Create directory with the correct subjects’ data
 
+| Step | Do                                             | File                         | Output placement |
+| ---- | ---------------------------------------------- |:---------------------------- |:---------------- |
+| 1     | Create a `.csv` file of the subjects to include. The `.csv` file should contain both sub-id and series number. The current study only investigates the control group containing healthy (i.e., non-depressive) subjects identifiable via their XX ID.                                    |     `series_include.csv`                         |                  |
+| 2    | Copy and move the correct subject data from the official `raw` folder to the `scratch` folder from which we can work with it                           | `raw_to_scratch`    | `…/data/` |                  |
+
+
+### 2.1 Converting source data to the brain imaging data structure (BIDS) standard
+
+The following pipeline assumes that your eventfiles/logfiles are BIDS compatible. Be aware that column names and .json files have to be specified correctly. The pipeline furthermore assumes that you have modifyed your study bidsmap (`bidsmap_template.yaml`) file either via BIDScoin’s GUI or by editing the file directly. 
+
+| Step | Do                                                                                                                | File                                                    | Output placement |
+| ---- | ----------------------------------------------------------------------------------------------------------------- |:------------------------------------------------------- |:---------------- |
+| 0    | Copy and move logfiles (for the subjects to be analysed only) from `aux` drive to `scratch`                       |                                                         |                  |
+| 1    | Convert logfiles to BIDS compatible format                                                                        | `convert_logfiles_to_BIDS.py`                           |                  |
+| 2    | Delete partphase folders                                                                                          |                                                         |                  |
+| 3    | Dele sbref files                                                                                                  |                                                         |                  |
+| 4    | Delete sbref lines in scantsv file                                                                                |                                                         |                  |
+| 5    | Run the bidsmapper and bidscoiner to make bidscoin conversion                                                     | `bidscoiner_emma.py` | `…/data/`                            |                  |
+| 7    | Validate your BIDScoin dataset using the online [BIDS Validator](https://bids-standard.github.io/bids-validator/) | [Link](https://bids-standard.github.io/bids-validator/) |                  |
+
+### 2.2 Preprocessing fMRI data using fMRIPrep
+
+The current pipeline runs fMRIPrep via uDocker. 
+
+| Step | Do                                                                                                                                   | File                       | Output placement    |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------ |:-------------------------- |:------------------- |
+| 0    | Create `/BIDS/derivatives` folder to output fMRIPrep                                                                                 |                            |                     |
+| 1    | Install uDocker, pull fMRIPrep image and create container from the pulled image                                                      | `full_process_udocker.py`  |                     |
+| 2    | Verify fMRIPrep image                                                                                                                | `fmriprep_image_verify.py` |                     |
+| 3    | Copy and move the correct subject data from the official `raw` folder to the `scratch` folder from which we can work with it         | `raw_to_scratch`           | `scratch/bachelor_scratch/BIDS`          |
+| 4    | Define fMRIPrep function in a script that also calls the function (using `argv`).                                                    | `run_fmriprep_all.py`      |                     |
+| 5    | Submit the above script (step 4) to the computer cluster to run fMRIPrep and preprocess the fMRI data of all 34 subjects in parallel | `master.py`                | `/BIDS/derivatives` |
+
+### 2.3 Analysing fMRI data 
+
+| Step | Do                                                   | File                               | Output placement |
+| ---- | ---------------------------------------------------- |:---------------------------------- |:---------------- |
+| 0    | Prepare eventfiles for analysis                      | `looping_over_all_tsv_files.ipynb` |                  |
+| 1    | Define first level model                             | `first_level_fit_function.py`      |                  |
+| 2    | Fit first level model on all 34 subjects in parallel | `fit_master.py`                    |  `/flms/`                |
+| 3    | Run second level model on all 34 sub                 | `second_level.ipynb`                                   |                  |
+
+### 2.4 Analysing behavioral data 
+
+| Column 1 | Col 2 | Col 3|
+|:--|:-:|--:| 
+|A|B|C|
+|d|e|f| 
 
 
 
