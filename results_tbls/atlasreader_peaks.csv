@@ -1,7 +1,0 @@
-cluster_id,peak_x,peak_y,peak_z,peak_value,volume_mm,aal,talairach_ba
-    1,-8.986,12.166, 65.5,5.54764,757.895,Supp_Motor_Area_L,Background
-    2,23.162,-75.348, 47.5,5.18347,648.804,Parietal_Sup_R,Brodmann_area_7
-    3,51.738,-30.698, -1.1,4.88229,533.972,Temporal_Mid_R,Background
-    4,32.092,19.31,-13.7,4.99987,390.431,Insula_R,Background
-    5,-5.414,-66.418, 34.9,4.94853,321.531,Precuneus_L,Background
-    6,10.66,6.808, 34.9,5.237,298.565,Cingulate_Mid_R,Brodmann_area_24
