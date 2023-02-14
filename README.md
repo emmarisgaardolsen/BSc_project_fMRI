@@ -28,7 +28,7 @@ The project is organised as follows:
 │   └── git_fit_master.py.     <- Python script used to run the first level analysis in parallel using the CFIN cluster
 │   └── git_second_level.ipynb <- Notebook to replicate second level analysis as well as visualisations
 ├──  requirement.rtf           <- A requirements file of the required packages.
-└──  file                      <- Something
+└──  BSc_project.pdf           <- Bachelor's Thesis
 ```
 
 Before running the code you must run the following to install requirements:
