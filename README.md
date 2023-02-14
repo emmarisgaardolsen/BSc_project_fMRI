@@ -31,11 +31,6 @@ The project is organised as follows:
 └──  BSc_project.pdf           <- Bachelor's Thesis
 ```
 
-Before running the code you must run the following to install requirements:
-```
-pip install -r requirements.txt
-git clone https://github.com/something.git
-```
 
 ## 2. Pipelines
 
