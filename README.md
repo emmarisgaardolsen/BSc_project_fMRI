@@ -1,6 +1,6 @@
 # BSc_project_fMRI - Neuronal Basis of Reading Emotional Words 🧠 💚
 
-![Resonance](fig/header.png)
+![Resonance](header.png)
 
 The current directory contains all of the code and scripts created and used by [Sirid Wihlborg](https://github.com/siridw) & Emma Olsen to analyse functional magnetic resonance imaging (fMRI) data as a part of our bachelor’s thesis at [Cognitive Science](https://bachelor.au.dk/en/cognitivescience), [Aarhus University](https://cc.au.dk/). 
 
