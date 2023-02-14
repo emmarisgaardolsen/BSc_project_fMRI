@@ -22,25 +22,12 @@ As the brain data contains personal information about individuals, sharing it on
 The project is organised as follows:
 
 ```
-├── README.md                  <- The top-level README for this project.
-├── fig                        
-├── folder                     <- Some comment
-│   └── file                   <- Some comment
-├── folder                       
-├── folder                     <- Some folder
-├── notebooks                  <- Notebooks for XXX     
-│   ├── something.ipynb
-│   ├── something.ipynb
-│   └── ...
-├── src                        <- Main scripts
-│   ├── something.py
-│   ├── something.py
-│   ├── something.py
-│   ├── something.py
-│   ├── something.py
-│   └── ...
-├──  name                      <- Some files containing smth
-├──  requirement.txt           <- A requirements file of the required packages.
+├── README.md                  <- The top-level README for this project.                        
+├── scripts                    <- Main scripts used for analysis and preprocessing. Contact authors to get access to full analysis files.
+│   └── git_first_level_fit_function.py                   <- Python script containing function for conducting first level analysis of structural images
+│   └── git_fit_master.py.     <- Python script used to run the first level analysis in parallel using the CFIN cluster
+│   └── git_second_level.ipynb <- Notebook to replicate second level analysis as well as visualisations
+├──  requirement.rtf           <- A requirements file of the required packages.
 └──  file                      <- Something
 ```
 
