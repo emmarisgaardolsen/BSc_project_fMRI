@@ -28,7 +28,7 @@ The project is organised as follows:
 │   └── git_first_level_fit_function.py                   <- Python script containing function for conducting first level analysis of structural images
 │   └── git_fit_master.py.     <- Python script used to run the first level analysis in parallel using the CFIN cluster
 │   └── git_second_level.ipynb <- Notebook to replicate second level analysis as well as visualisations
-
+├──  stim_behav_analysis       <- Code used for visualising stimuli distribution & Bayesian Analysis of Behavioral Reaction Time Data from the MR scanner
 ├──  requirement.rtf           <- A requirements file of the required packages.
 └──  BSc_project.pdf           <- Bachelor's Thesis
 ```
