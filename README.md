@@ -2,7 +2,7 @@
 
 ![Resonance](header.png)
 
-**Confidentiality and Accessibility**: The current directory contains descriptions of all of the code and scripts created and used by [Sirid Wihlborg](https://github.com/siridw) & Emma Olsen to analyse functional magnetic resonance imaging (fMRI) data as a part of our bachelor’s thesis at [Cognitive Science](https://bachelor.au.dk/en/cognitivescience), [Aarhus University](https://cc.au.dk/). While all scripts are mentioned, only the scripts used for analysis are uploaded to the repository. Write Emma Olsen or Sirid Wihlborg to get access to additional scripts or to get help on how to get started with your own fMRI analysis.
+**Confidentiality and Accessibility**: The current directory contains descriptions of all of the code and scripts created and used by [Sirid Wihlborg](https://github.com/siridw) & Emma Olsen to analyse functional magnetic resonance imaging (fMRI) data as a part of our bachelor’s thesis at [Cognitive Science](https://bachelor.au.dk/en/cognitivescience), [Aarhus University](https://cc.au.dk/). While all scripts necessary for replication are mentioned, some scripts and notebooks used by the authors for minor editing and preprocessing (mainly scripts moving the correct neuroimaging files to the correct directories) have not been shared on the repository as they may contain subject ID's or other confidential information that should not be shared publicly due to the protection of the participants. Write Emma Olsen or Sirid Wihlborg to get access to anonymised additional scripts or to get help on how to get started with your own fMRI analysis.
 
 ## Table of content 
 0. Project description
