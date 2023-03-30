@@ -15,8 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 pacman::p_load(tidyverse,ggpubr,brms,dplyr,readr)
 ```
 
-- Linear regression, OBS: account for word length / difficulty? :ooo Skal vi teste om der er signifikant forskel i kompleksitet/længe/familiarity/useability mellem neutral og emotional ord? 
-
 
 # Loading in data
 ```{r}
