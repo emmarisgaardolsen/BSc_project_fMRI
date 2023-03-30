@@ -1,0 +1,529 @@
+---
+title: "behavioral_analysis_bsc"
+author: "EOL"
+date: '2022-12-04'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(tidyverse,ggpubr,brms,dplyr,readr)
+```
+
+- Linear regression, OBS: account for word length / difficulty? :ooo Skal vi teste om der er signifikant forskel i kompleksitet/længe/familiarity/useability mellem neutral og emotional ord? 
+
+
+# Loading in data
+```{r}
+df <- read.table("/Users/emmaolsen/Library/CloudStorage/OneDrive-Aarhusuniversitet/cognitive_science/5th_semester/bachelor/anew-1999/all_eventfiles.tsv",header=TRUE,sep="\t")
+```
+
+```{r}
+# delete all rows in which the value in the column 'Unnamed: 0_x' is Unnamed: 0_x. 
+df <- df[!(df$duration %in% "duration"), ]
+```
+
+
+```{r}
+# check subset with only no response trials
+df_nulresp <- df[df$rt == 0, ]
+
+df_nulresp %>% 
+  group_by(df_nulresp$trial_type) %>%
+  dplyr::summarize(count = n())
+
+```
+
+We remove all trials where reaction time is 0 because that is trials where no answer was given. 
+
+```{r}
+df$rt <- as.numeric(df$rt)
+df$Arousal <- as.numeric(df$Arousal)
+df$Valence <- as.numeric(df$Valence)
+```
+
+```{r}
+df <- subset(df, rt > 0)
+# Delete rows where the value in the 'rt' column is 0.0
+df <- subset(df, rt != 0.0)
+```
+
+```{r}
+length(unique(df$word))
+```
+
+```{r}
+df$trial_type <- ifelse(df$Arousal > 5 & (df$Valence > 6 |df$Valence < 3),"Emotional","Neutral")
+```
+
+
+```{r}
+write_csv(df,"all_trials_all_words.csv")
+```
+
+
+# Inspect data
+
+Density plot
+```{r}
+ggplot(df,aes(rt))+ 
+  geom_histogram(aes(y=after_stat(density),fill=..count..))+
+  stat_function(fun=dnorm,args=list(mean=mean(df$rt),sd=sd(df$rt)))+
+  labs(x="Reaction time",y="Density",title="Plot 3.1Histogram of rt") #adding the theoretical normal distribution
+
+```
+
+```{r}
+df$log_rt <- log(df$rt)
+df$sqrt_rt <- sqrt(df$rt)
+
+ggplot(df,aes(log_rt))+ 
+  geom_histogram(aes(y=after_stat(density),fill=..count..))+
+  stat_function(fun=dnorm,args=list(mean=mean(df$log_rt),sd=sd(df$log_rt)))+
+  labs(x="Reaction time log transformed",y="Density",title="Plot 3.1Histogram of log transformed rt") #adding the theoretical normal distribution
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = trial_type, y = rt, color = trial_type, fill = trial_type)) +
+  geom_violin() +
+  theme(legend.position = "none")
+```
+
+```{r}
+qqnorm(df$rt,main="Q-Q plot of rt variable")
+qqline(df$rt)
+```
+
+```{r}
+group_by(df, trial_type) %>%
+  dplyr::summarize(
+    count = n(),
+    mean = mean(rt, na.rm = TRUE),
+    sd = sd(rt, na.rm = TRUE)
+  )
+```
+
+```{r}
+ggboxplot(df, x = "trial_type", y = "rt", 
+          color = "trial_type", palette = c("#00AFBB", "#E7B800"),
+        ylab = "Reaction Time", xlab = "Trial Type")
+```
+
+## LM: linear model
+```{r}
+model <- lm(rt ~ trial_type, data = df)
+summary(model)$coef
+```
+
+## T-testing
+T-test are basically just linear models disguised as "tests". We can think of t-tests as linear models. We can think of the t-test as a specific type of the general linear model. We can re-write the t-test in ann equivalent way! 
+
+Source: https://mvuorre.github.io/posts/2017-01-02-how-to-compare-two-groups-with-robust-bayesian-estimation-using-r-stan-and-brms/
+
+```{r}
+pacman::p_load(knitr,kableExtra,scales,broom,brms,tidyverse) 
+```
+
+When we want to compare the means of two independent groups, we can choose between two different tests:
+
+Student’s t-test: Assumes that both groups of data are sampled from populations that follow a normal distribution and that both populations have the same variance.
+
+Welch’s t-test: Assumes that both groups of data are sampled from populations that follow a normal distribution, but it does not assume that those two populations have the same variance.
+
+So, if the two samples do not have equal variance then it’s best to use the Welch’s t-test.
+But how do we determine if the two samples have equal variance? There are two ways to do so:
+1. Use the Variance Rule of Thumb: As a rule of thumb, if the ratio of the larger variance to the smaller variance is less than 4 then we can assume the variances are approximately equal and use the Student’s t-test.
+  ratio = big_var / low_var
+2. Performing an F-test: a formal statistical test where H0 is = the samples have equal variances. F-statistic is F = S_1^2 / S_2^2 where s_1^2 and s_2^2 are the sample variances
+
+
+### Assessing whether the variances are equal to know which type of t-test to use
+https://www.statology.org/determine-equal-or-unequal-variance/
+```{r}
+neutral <- subset(df,trial_type=="Neutral")
+emotional <- subset(df,trial_type=="Emotional")
+
+# Method 1 - student's t-test if ratio between variances < 4
+var(neutral$rt) # 0.464424
+var(emotional$rt) # 0.478377
+  # variances are apx equal as reatio between them is lower than 4!
+
+# Method 2 - F-test: obs F-test assumption is normally distributed data which is not the case for us... miv
+var.test(rt ~ trial_type, df, alternative = "two.sided")
+```
+
+```{r}
+# Levenes test for F-test cause not normal data
+result = leveneTest(rt ~ trial_type, df)
+print(result)
+```
+If the p-value for the Levene test is greater than . 05, then the variances are not significantly different from each other (i.e., the homogeneity assumption of the variance is met). P value above .05, so the variances can be regarded as apx equal.
+
+
+```{r}
+# Equal variances t/test
+t1 <- t.test(rt ~ trial_type, data = df, var.equal = T)
+#t1
+
+t2 <- t.test(rt ~ trial_type, data = df, alternative = "two.sided", var.equal = T)
+t2
+```
+The test results in an observed t-value of -1.8237. The p-value of the t-test is above the significance level alpha = 0.05. We cannot reject the H0, namely that there is no difference in the mean of two groups. 
+
+
+We can do the EXACT same with LM - by making a linear model, we have a specific parameter for the difference in means! We model the mean with an intercept (neutral) and the effect of the treatment (emotional). 
+
+```{r}
+# The same as 
+olsmod <- lm(rt ~ trial_type, data = df)
+summary(olsmod)
+```
+The `trial_typeNeutral` row in the estimated coefficients is what we are interested in. `Estimate` is the point estimate (best guess) of the difference in means. `t-value` is the observed t-value (identical to what `t.test()` reported) and the p-value matches as well. The `intercept` row refers to `Beta_0`, which is the emotional groups mean.
+
+```{r}
+mean(emotional$rt)
+```
+
+# Bayesian stuff
+Also this is good: https://michael-franke.github.io/intro-data-analysis/simple-linear-regression-with-brms.html
+
+## Bayesian estimation of the t-test
+```{r}
+# Equal variances t-test 
+mod_rt <- brm(
+  rt ~ trial_type,
+  data = df,
+  cores = 4,  # Use 4 cores for parallel processing
+  file = "iqgroup"  # Save results into a file
+)
+```
+
+```{r}
+# Equal variances t-test 
+mod_eqvar_log <- brm(
+  log(rt) ~ trial_type,
+  data = df,
+  cores = 4,  # Use 4 cores for parallel processing
+  file = "iqgroup"  # Save results into a file
+)
+```
+
+```{r}
+summary(mod_rt)
+```
+
+```{r}
+summary(mod_rt)
+```
+
+The model contains three parameters, one of which is the shared standard deviation sigma. 
+
+
+Intercept estimate LM: 1.66356
+Intercept estimate BRMS: 1.66
+Intercept estimate BRMS log: 1.66
+
+trial_typeNeutral Estimate LM: 0.02592
+trial_typeNeutral Estimate BRMS: 0.03 
+trial_typeNeutral Estimate BRMS log: 0.03 
+
+LM Std.Error 0.01421
+BRMS Est.Error BRMS: 0.01 
+BRMS Est.Error BRMS log: 0.01 
+
+## Robust Bayesian Estimation
+Using a t-distribution to model the data, instead of a Gaussian, means that the model is less sensitive to extreme values. 
+
+```{r}
+pacman::p_load(brms)
+```
+
+```{r}
+
+mod_robust <- brm(
+  bf(rt ~ trial_type, sigma ~ trial_type),
+  family = student,
+  data = df,
+  cores = 4,
+  file = "iqgroup-robust"
+)
+
+```
+
+```{r}
+# model with prior only
+mod_robust_prior <- brm(
+  bf(rt ~ trial_type, sigma ~ trial_type),
+  family = student,
+  data = df,
+  cores = 4,
+  file = "iqgroup-robust",
+  sample_prior = "only")
+```
+
+```{r}
+summary(mod_robust)
+```
+
+```{r}
+plot(mod_robust)
+```
+
+The output tells us which model we fitted and states some properties of the MCMC sampling routine used to obtain samples from the posterior distribution. The most important pieces of information for drawing conclusions from this analysis are the summaries for the estimated parameters, here called “Intercept” (the  β0of the regression model), “trial_typeNeutral” (the slope coefficient  β1 for the trial_type column in the data) and "sigma" (the standard deviation of the Gaussian error function around the central predictor). The “Estimate” shown here for each parameter is its posterior mean. The columns “l-95% CI” and “u-95% CI” give the 95% inner quantile range of the marginal posterior distribution for each parameter.
+
+```{r}
+hypothesis(mod_robust, "trial_typeNeutral  > 0")
+```
+The table shows the estimate for the slope of trial_typeNeutral,  together with an estimated error, lower and upper bounds of a credible interval (95% by default). All of these numbers are rounded. It also shows the “Evidence ratio” which, for an interval-valued hypothesis is not the Bayes factor, but the posterior odds (see above). In the present case, an evidence ratio of Inf means that all posterior samples for the slope coefficient were positive. This is also expressed in the posterior probability (“Post.Prod” in the table) for the proposition that the interval-valued hypothesis is true (given data and model). https://michael-franke.github.io/intro-data-analysis/testing-hypotheses.html
+
+```{r}
+fixef(mod_robust)
+```
+
+
+Intercept estimate LM: 1.66356
+Intercept estimate BRMS: 1.66
+Intercept estimate robust bayesian: 1.56
+
+trial_typeNeutral Estimate LM: 0.02592
+trial_typeNeutral Estimate BRMS: 0.03 
+trial_typeNeutral Estimate robust bayesian: 0.03
+
+LM trial_typeNeutralStd.Error 0.01421
+BRMS trial_typeNeutralEst.Error BRMS: 0.01 
+Robust Bayesian trial_typeNeutral Est.Error: 0.01
+
+```{r}
+pacman::p_load(report)
+report(mod_robust)
+```
+
+```{r}
+plot(mod_robust)
+```
+Caterpillar plots or trace plots (right) look good - model explored all possible values. 
+The plots to the left show the mean values plotted by the amount of times the model got this value (basically the distributions of means). And if you look closely, the mean of this density plot is going to be the mean value that has been found by the model most often, so probably the most “correct” one. And that value should be very close to the actual estimate that the summary function gave us. In our case, the top plot is the intercept and that density plot seems to be centered around 1.56, which is the estimate value that we got in the summary!
+
+https://ourcodingclub.github.io/tutorials/brms/
+
+```{r}
+# Posterior predictive checks - does our model predict our data accurately (using the estimates).
+pp_check(mod_robust, ndraws=1000)+
+  ggtitle("Posterior Predictive Check")
+```
+
+```{r}
+png(filename = "post_pred_check_plot.png")
+plot(post_pred_check_plot)
+dev.off() 
+```
+
+```{r}
+# prior predictive checks
+pp_check(mod_robust_prior,ndraws=1000)+ 
+  ggtitle("Prior predictive Check")
+
+```
+
+```{r}
+png(filename = "prior_pred_check_plot.png")
+plot(prior_pred_check_plot)
+dev.off()
+```
+
+
+In the above plot, the thin light blue lines represent 100 random draws/distributions created by the model. The dark blue line represents the posterior distribution. The two distributions look very similar.  
+
+The mean reaction time did not significantly differ between neutral words and emotional words (Beta = 0.03,  95% CI=0.01-0.06)) 
+
+0.01     0.06
+
+
+SEE this article for inspi: https://ourcodingclub.github.io/tutorials/brms/
+
+
+
+
+
+----------
+The other important part of that summary is the 95% Credibility Interval (CI), which tells us the interval in which 95% of the values of our posterior distribution fall. The thing to look for is the interval between the values of l-95% CI and u-95% CI. If this interval is strictly positive or negative, we can assume that the effect is significant (and positive or negative respectively). However, if the interval encompasses 0, then we can’t be sure that the effect isn’t 0, aka non-significant. In addition, the narrower the interval, the more precise the estimate of the effect.
+
+In our case, the slope 95% CI does not encompass 0 and it is strictly positive, so we can say that time has a significantly positive effect on red knot abundance.
+
+
+## Another example with reaction time: https://michael-franke.github.io/intro-data-analysis/Chap-04-03-predictors-two-levels.html
+
+```{r}
+df <- df %>% 
+  select(rt,trial_type)
+
+head(df,5)
+```
+
+We want to explain or predict the variable RT in terms of the variable condition. The variable RT is a metric measurement. But the variable trial_type is categorical variable with two category levels.
+
+```{r}
+df %>% 
+  ggplot(aes(x = trial_type, y = rt, color = trial_type, fill = trial_type)) +
+  geom_violin() +
+  theme(legend.position = "none")
+```
+
+```{r}
+df %>% 
+  group_by(trial_type) %>% 
+  dplyr::summarize(mean_RT = mean(rt))
+```
+
+
+```{r}
+# The difference between the means of conditions is:
+df %>% 
+  filter(trial_type == "Emotional") %>% 
+  pull(rt) %>% mean() -
+  df %>% filter(trial_type == "Neutral") %>%
+  pull(rt) %>% mean()
+
+```
+
+The difference in the reaction time of emotional trials and neutral trials are -0.02 seconds, with emotional trials being the shortest. Is this difference significant though?
+
+```{r}
+fit_brms_ST <- brm(
+  formula = rt ~ trial_type,
+  data = df
+)
+```
+
+```{r}
+summary(fit_brms_ST)$fixed[,c("l-95% CI", "Estimate", "u-95% CI")]
+```
+The intercept (1.6434) is close to the empirically inferred mean of the "emotional" condition (Emotional rt mean was	1.663560). The mean estimate for the variable `trial_typeNeutral` closely matches the computed difference between the means of the two conditions (it was -0.02592104).
+
+```{r}
+# credible interval
+fit_brms_ST %>% posterior_interval(prob=c(0.9))
+```
+
+```{r}
+# extract samples from the posterior
+
+post_samples <- brms::posterior_samples(fit_brms_ST) 
+head(fit_brms_ST)
+```
+
+```{r}
+remotes::install_github("michael-franke/aida-package")
+```
+
+```{r}
+map_dfr(post_samples %>% 
+          select(-lp__), aida::summarize_sample_vector) %>% 
+    mutate(Parameter = colnames(post_samples[1:3]))
+```
+
+```{r}
+post_samples %>% 
+  select(-lp__) %>% 
+  pivot_longer(cols = everything()) %>% 
+  ggplot(aes(x = value)) +
+  geom_density() +
+  facet_wrap(~name, scales = "free")
+```
+
+# Last example 
+```{r}
+brm.1 <- brm(rt ~ trial_type, 
+             brmsfamily("gaussian"), 
+             data = df, 
+             chains = 4, #specify the number of Markov chains
+             cores = getOption("mc.cores", 1),
+             iter = 3000, warmup = 1500, thin = 5,
+             prior =  c(prior(normal(0, 3), "b"), 
+                        prior(normal(0, 3), "Intercept"))) 
+```
+```{r}
+plot(brm.1)
+```
+
+```{r}
+## defining priors 
+prior =  c(prior(normal(0, 3), "b"),prior(normal(0, 3), "Intercept"))
+
+## fitting the brm.1 modelonly using the prior (no data)
+brm.1_priors <- brm(rt ~ trial_type, 
+             brmsfamily("gaussian"), 
+             data = df, 
+             chains = 4, #specify the number of Markov chains
+             cores = getOption("mc.cores", 1),
+             iter = 3000, warmup = 1500, thin = 5,
+             prior =  c(prior(normal(0, 3), "b"), 
+                        prior(normal(0, 3), "Intercept")),
+             sample_prior = "only") 
+                  
+            
+```
+```{r}
+## prior predictive check
+pp_check(brm.1_priors,ndraws=100)
+```
+```{r}
+pp_check(brm.1,ndraws=100)
+```
+
+
+```{r}
+summary(brm.1)
+```
+
+```{r}
+
+pacman::p_load(
+  brms,
+  ggplot2,
+  gdata,
+  dplyr,
+  parallel,
+  cowplot
+)
+
+```
+
+```{r}
+library(ggthemes)
+library(extrafont)
+library(remotes)
+remotes::install_version("Rttf2pt1", version = "1.3.8")
+extrafont::font_import()
+```
+
+```{r}
+loadfonts(quiet = T)
+fonts()
+```
+
+```{r}
+plot(brm.1)
+```
+
+
+
+
+
+
+## Reporting
+
+We fitted a simple linear model within the bayesian framework 
+
+
+See this paper for example: https://www.dropbox.com/s/mz4rt219bt38naq/Fri-89723-19_919934_594188_Hand-in_28-05-2020.pdf?dl=0
+
+https://www.dropbox.com/s/w75fu4fyfp7168p/Fri-89723-16_919746_594366_Hand-in_SocKult-Exam-Eva-and-Matilde.pdf?dl=0
+
+https://www.analyticsvidhya.com/blog/2016/06/bayesian-statistics-beginners-simple-english/
