@@ -22,11 +22,13 @@ As the brain data contains personal information about individuals, sharing it on
 The project is organised as follows:
 
 ```
-├── README.md                  <- The top-level README for this project.                        
-├── scripts                    <- Main scripts used for analysis and preprocessing. Contact authors to get access to full analysis files.
+├── README.md                  <- The top-level README for this project.        
+├── preproc_scripts            <- Scripts used for preprocessing before analysis
+├── analysis_scripts                    <- Main scripts used for analysis. Contact authors to get access to full analysis files or description/elaboration of code.
 │   └── git_first_level_fit_function.py                   <- Python script containing function for conducting first level analysis of structural images
 │   └── git_fit_master.py.     <- Python script used to run the first level analysis in parallel using the CFIN cluster
 │   └── git_second_level.ipynb <- Notebook to replicate second level analysis as well as visualisations
+
 ├──  requirement.rtf           <- A requirements file of the required packages.
 └──  BSc_project.pdf           <- Bachelor's Thesis
 ```
